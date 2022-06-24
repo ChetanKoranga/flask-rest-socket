@@ -1,0 +1,21 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+flask = "*"
+flask-mongoengine = "*"
+flask-restful = "*"
+flask-bcrypt = "*"
+flask-jwt-extended = "*"
+flask-mail = "*"
+python-dotenv = "*"
+flask-socketio = "*"
+flask-cors = "*"
+eventlet = "*"
+
+[requires]
+python_version = "3.10"

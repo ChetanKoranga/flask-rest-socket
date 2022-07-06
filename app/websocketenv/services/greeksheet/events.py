@@ -1,8 +1,11 @@
-from time import sleep
-from flask import request
-from flask_socketio import emit, join_room, leave_room,rooms
 import logging
+from socket import SocketIO
 import sys
+from time import sleep
+
+from flask import request
+from flask_socketio import emit, join_room, leave_room, rooms
+
 from .... import socketio
 
 logging.basicConfig(
@@ -15,33 +18,50 @@ logging.basicConfig(
 
 @socketio.on('join', namespace='/greeksheet')
 def joined(message):
-    """Sent by clients when they enter a room.
-    A status message is broadcast to all people in the room."""
-    join_room(message['room'])
+    flag = True
+    print('ROOm===>>',rooms())
+    if 'greeksheet' in rooms():
+        print("Flag triggered===")
+        flag = False
+    
+    join_room(message['room']) 
+    
+    
     print("user joined the room with sid:  ",request.sid)
-    count = 1
-    # while True:
-    #     print("Count====>",count)
-    #     emit('live_count', {"count": count})
-    #     count+=1
-    #     print("All rooms====",rooms());
-    #     print("greeksheet sids===",rooms('greeksheet'));
-    #     socketio.sleep(1)
+    print("All rooms====",rooms())
+    # room = rooms()
+    # count = 1
+    # if flag:
+    #     while ('greeksheet' in room):
+    #         # print("Room====>",room)
+    #         room = rooms()
+    #         count+=1
+    #         print("count======",count)
+    #         emit('live_count', {"count": count},room=message['room'])
+    #         socketio.sleep(2)
+    #         emit('live_count', {"count": count},rooms=message['room'])
+    #         count+=1
+    #         print("All rooms====",rooms())
+    #         print("greeksheet sids===",rooms('greeksheet'))
+    #         socketio.sleep(1)
+
+
 
 @socketio.on('leave', namespace='/greeksheet')
-def joined(message):
+def leaved(message):
     """Sent by clients when they enter a room.
     A status message is broadcast to all people in the room."""
     leave_room(message['room'])
     print("user leaved the room with sid:  ",request.sid)
-
-
+    print("All rooms====",rooms())
+    
 
 @socketio.on('get_sheet_data', namespace='/greeksheet')
 def text(message):
     """Sent by a client when the user entered a new message.
     The message is sent to all subsciber in the room."""
     pass
+
 
 # @socketio.on('left', namespace='/chat')
 # def left(message):

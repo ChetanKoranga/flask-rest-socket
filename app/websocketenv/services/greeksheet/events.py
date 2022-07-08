@@ -16,6 +16,8 @@ logging.basicConfig(
     ]
 )
 
+clients = []
+
 @socketio.on('join', namespace='/greeksheet')
 def joined(message):
     flag = True
@@ -25,25 +27,28 @@ def joined(message):
         flag = False
     
     join_room(message['room']) 
+    clients.insert(request.sid)
     
     
     print("user joined the room with sid:  ",request.sid)
     print("All rooms====",rooms())
+    print("All the clients connected===>")
+    emit('live_count', {"count": 100},rooms=message['room'])
     # room = rooms()
-    # count = 1
-    # if flag:
-    #     while ('greeksheet' in room):
-    #         # print("Room====>",room)
-    #         room = rooms()
-    #         count+=1
-    #         print("count======",count)
-    #         emit('live_count', {"count": count},room=message['room'])
-    #         socketio.sleep(2)
-    #         emit('live_count', {"count": count},rooms=message['room'])
-    #         count+=1
-    #         print("All rooms====",rooms())
-    #         print("greeksheet sids===",rooms('greeksheet'))
-    #         socketio.sleep(1)
+    count = 1
+    if flag:
+        while ('greeksheet' in room):
+            # print("Room====>",room)
+            room = rooms()
+            count+=1
+            print("count======",count)
+            emit('live_count', {"count": count},room=message['room'])
+            socketio.sleep(2)
+            emit('live_count', {"count": count},rooms=message['room'])
+            count+=1
+            print("All rooms====",rooms())
+            print("greeksheet sids===",rooms('greeksheet'))
+            socketio.sleep(1)
 
 
 

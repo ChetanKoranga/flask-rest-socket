@@ -24,7 +24,7 @@ def create_app(config_object = 'app.config.settings'):
     # import and implement websocket on app
     from .websocketenv import main as main_blueprint
     app.register_blueprint(main_blueprint)
-    socketio.init_app(app,cors_allowed_origins="*")
+    socketio.init_app(app,cors_allowed_origins="*",async_mode="eventlet")
     
     # 
     api = Api(app, errors=errors)

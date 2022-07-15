@@ -1,78 +1,71 @@
 import logging
-from socket import SocketIO
+from random import randint
 import sys
-from time import sleep
-
 from flask import request
 from flask_socketio import emit, join_room, leave_room, rooms
-
+from app.websocketenv.helpers.SocketWorkers.RealTImeDataWorker import (
+    connect,
+    start_work,
+    stop_work,
+)
 from .... import socketio
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[
-        logging.StreamHandler(sys.stdout)
-    ]
+    handlers=[logging.StreamHandler(sys.stdout)],
 )
 
 clients = []
 
-@socketio.on('join', namespace='/greeksheet')
+
+def sendGreekSheetData():
+    data = randint(1, 99999999)
+    return data
+
+
+@socketio.on("join", namespace="/greeksheet")
 def joined(message):
-    flag = True
-    print('ROOm===>>',rooms())
-    if 'greeksheet' in rooms():
-        print("Flag triggered===")
-        flag = False
+    global clients
+    print("ROOm===>>", rooms())
+    con_sid = request.sid
+    join_room(message["room"], con_sid, "/greeksheet")
+    if len(clients) == 0:
+        connect()
+        start_work("live_count", sendGreekSheetData, 2)
+    clients.append(request.sid)
+    clients = list(set(clients))
+    print("user joined the room with sid:  ", con_sid)
+    print("All rooms====", rooms())
+    print("All clients====>>> ", clients)
     
-    join_room(message['room']) 
-    clients.insert(request.sid)
-    
-    
-    print("user joined the room with sid:  ",request.sid)
-    print("All rooms====",rooms())
-    print("All the clients connected===>")
-    emit('live_count', {"count": 100},rooms=message['room'])
-    # room = rooms()
-    count = 1
-    if flag:
-        while ('greeksheet' in room):
-            # print("Room====>",room)
-            room = rooms()
-            count+=1
-            print("count======",count)
-            emit('live_count', {"count": count},room=message['room'])
-            socketio.sleep(2)
-            emit('live_count', {"count": count},rooms=message['room'])
-            count+=1
-            print("All rooms====",rooms())
-            print("greeksheet sids===",rooms('greeksheet'))
-            socketio.sleep(1)
 
 
-
-@socketio.on('leave', namespace='/greeksheet')
+@socketio.on("leave", namespace="/greeksheet")
 def leaved(message):
+    con_sid = request.sid
     """Sent by clients when they enter a room.
     A status message is broadcast to all people in the room."""
-    leave_room(message['room'])
-    print("user leaved the room with sid:  ",request.sid)
-    print("All rooms====",rooms())
-    
-
-@socketio.on('get_sheet_data', namespace='/greeksheet')
-def text(message):
-    """Sent by a client when the user entered a new message.
-    The message is sent to all subsciber in the room."""
-    pass
+    leave_room(message["room"])
+    print("user leaved the room with sid:  ", con_sid)
+    print("All clients====>>> ", clients)
+    if clients and con_sid in clients:
+        clients.remove(con_sid)
+    print("All rooms====", rooms())
+    if len(clients) == 0:
+        stop_work()
 
 
-# @socketio.on('left', namespace='/chat')
-# def left(message):
-#     """Sent by clients when they leave a room.
-#     A status message is broadcast to all people in the room."""
-#     room = session.get('room')
-#     leave_room(room)
-#     emit('status', {'msg': session.get('name') + ' has left the room.'}, room=room)
+@socketio.on("disconnect", namespace="/greeksheet")
+def disconnected():
+    """Sent by clients when they enter a room.
+    A status message is broadcast to all people in the room."""
+    print("Auto Disconnection: ", request.sid)
 
+    if clients:
+        clients.remove(request.sid)
+    print("user leaved the room with sid:  ", request.sid)
+    if len(clients) == 0:
+        stop_work()
+    print("All clients====>>> ", clients)
+    print("All rooms====", rooms())

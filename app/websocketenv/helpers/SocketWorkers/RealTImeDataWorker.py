@@ -25,12 +25,15 @@ class RealTimeDataWorker(object):
         do work and emit message
         """
         while self.switch:
+            self.unit_of_work += 1
+            # emit(eventname, func())
             print("unit of work: ", self.unit_of_work)
             # must call emit from the socket io
             # must specify the namespace
             self.socketio.emit(
                 eventname, {"data": func()}, room="greeksheet", namespace="/greeksheet"
             )
+
             # important to use eventlet's sleep method
             eventlet.sleep(interval)
 

@@ -17,6 +17,7 @@ logging.basicConfig(
 )
 
 clients = []
+namespace_var = "/chart"
 
 
 def sendGreekSheetData():
@@ -24,24 +25,24 @@ def sendGreekSheetData():
     return data
 
 
-@socketio.on("join", namespace="/greeksheet")
+@socketio.on("join", namespace=namespace_var)
 def joined(message):
+    roomname = message["room"]
     global clients
     print("ROOm===>>", rooms())
     con_sid = request.sid
-    join_room(message["room"], con_sid, "/greeksheet")
+    join_room(roomname, con_sid, namespace_var)
     if len(clients) == 0:
         connect()
-        start_work("live_count", sendGreekSheetData, 2)
+        start_work("chart_data", sendGreekSheetData, roomname, namespace_var, 2)
     clients.append(request.sid)
     clients = list(set(clients))
     print("user joined the room with sid:  ", con_sid)
     print("All rooms====", rooms())
     print("All clients====>>> ", clients)
-    
 
 
-@socketio.on("leave", namespace="/greeksheet")
+@socketio.on("leave", namespace=namespace_var)
 def leaved(message):
     con_sid = request.sid
     """Sent by clients when they enter a room.
@@ -56,7 +57,7 @@ def leaved(message):
         stop_work()
 
 
-@socketio.on("disconnect", namespace="/greeksheet")
+@socketio.on("disconnect", namespace=namespace_var)
 def disconnected():
     """Sent by clients when they enter a room.
     A status message is broadcast to all people in the room."""

@@ -20,7 +20,7 @@ class RealTimeDataWorker(object):
         self.socketio = sio
         self.switch = True
 
-    def do_work(self, eventname, func, interval=1):
+    def do_work(self, eventname, func, room, namespace, interval=1):
         """
         do work and emit message
         """
@@ -31,7 +31,7 @@ class RealTimeDataWorker(object):
             # must call emit from the socket io
             # must specify the namespace
             self.socketio.emit(
-                eventname, {"data": func()}, room="greeksheet", namespace="/greeksheet"
+                eventname, {"data": func()}, room=room, namespace=namespace
             )
 
             # important to use eventlet's sleep method
@@ -54,13 +54,13 @@ def connect():
     emit("re_connect", {"msg": "connected"})
 
 
-def start_work(eventname, func, interval):
+def start_work(eventname, func, room, namespace,interval):
     """
     trigger background thread
     """
     emit("update", {"msg": "Starting Worker"})
     # notice that the method is not called - don't put braces after method name
-    socketio.start_background_task(worker.do_work, eventname, func, interval)
+    socketio.start_background_task(worker.do_work, eventname, func, room, namespace, interval)
 
 
 def stop_work():

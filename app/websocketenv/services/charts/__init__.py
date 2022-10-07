@@ -20,7 +20,7 @@ clients = []
 namespace_var = "/chart"
 
 
-def sendGreekSheetData():
+def send_greeksheet_data():
     data = randint(1, 99999999)
     return data
 
@@ -34,12 +34,10 @@ def joined(message):
     join_room(roomname, con_sid, namespace_var)
     if len(clients) == 0:
         connect()
-        start_work("chart_data", sendGreekSheetData, roomname, namespace_var, 2)
+        start_work("chart_data", send_greeksheet_data, roomname, namespace_var, 2)
     clients.append(request.sid)
     clients = list(set(clients))
     print("user joined the room with sid:  ", con_sid)
-    print("All rooms====", rooms())
-    print("All clients====>>> ", clients)
 
 
 @socketio.on("leave", namespace=namespace_var)

@@ -19,9 +19,11 @@ flask-cors = "*"
 eventlet = "*"
 flask-pymongo = "*"
 marshmallow = "*"
+pytest = "*"
+gunicorn = "*"
 
 [requires]
-python_version = "3.10"
+python_version = "3"
 
 [pipenv]
 allow_prereleases = true
